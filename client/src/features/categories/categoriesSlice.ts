@@ -7,7 +7,7 @@ import { RootState } from "../../app/store/configureStore";
 interface CategoriesState {
     categoriesLoaded: boolean;
     filtersLoaded: boolean;
-    // status: string;
+    status: string;
     // brands: string[];
     // types: string[];
     categoryParams: CategoryParams;
@@ -28,11 +28,11 @@ function getAxiosParams(categoryParams: CategoryParams) {
 }
 
 export const fetchCategoriesAsync = createAsyncThunk<Category[], void, {state: RootState}>(
-    'categories/fetchProductsAsync',
+    'categories/fetchCategoriesAsync',
     async (_, thunkAPI) => {
         const params = getAxiosParams(thunkAPI.getState().categories.categoryParams)
         try {
-            var response = await agent.Catalog.list(params);
+            var response = await agent.Categories.list(params);
             thunkAPI.dispatch(setMetaData(response.metaData));
             return response.items;
         } catch (error: any) {
@@ -42,11 +42,11 @@ export const fetchCategoriesAsync = createAsyncThunk<Category[], void, {state: R
 )
 
 export const fetchCategoryAsync = createAsyncThunk<Category, number>(
-    'categories/fetchProductAsync',
-    async (productId, thunkAPI) => {
+    'categories/fetchCategoryAsync',
+    async (categoryId, thunkAPI) => {
         try {
-            const product = await agent.Catalog.details(productId);
-            return product;
+            const category = await agent.Categories.details(categoryId);
+            return category;
         } catch (error: any) {
             return thunkAPI.rejectWithValue({error: error.data})
         }
@@ -57,7 +57,7 @@ export const fetchFilters = createAsyncThunk(
     'categories/fetchFilters',
     async (_, thunkAPI) => {
         try {
-            return agent.Catalog.fetchFilters();
+            return agent.Categories.fetchFilters();
         } catch (error: any) {
             return thunkAPI.rejectWithValue({error: error.message})
         }
@@ -79,7 +79,7 @@ export const categoriesSlice = createSlice({
     initialState: categoriesAdapter.getInitialState<CategoriesState>({
         categoriesLoaded: false,
         filtersLoaded: false,
-        // status: 'idle',
+        status: 'idle',
         // brands: [],
         // types: [],
         categoryParams: initParams(),
@@ -109,43 +109,44 @@ export const categoriesSlice = createSlice({
             state.categoriesLoaded = false;
         }
     },
-    // extraReducers: (builder => {
-    //     builder.addCase(fetchProductsAsync.pending, (state, action) => {
-    //         state.status = 'pendingFetchProducts'
-    //     });
-    //     builder.addCase(fetchProductsAsync.fulfilled, (state, action) => {
-    //         categoriesAdapter.setAll(state, action.payload);
-    //         state.status = 'idle';
-    //         state.categoriesLoaded = true;
-    //     });
-    //     builder.addCase(fetchProductsAsync.rejected, (state, action) => {
-    //         console.log(action.payload);
-    //         state.status = 'idle';
-    //     });
-    //     builder.addCase(fetchProductAsync.pending, (state) => {
-    //         state.status = 'pendingFetchProduct';
-    //     });
-    //     builder.addCase(fetchProductAsync.fulfilled, (state, action) => {
-    //         categoriesAdapter.upsertOne(state, action.payload);
-    //         state.status = 'idle';
-    //     });
-    //     builder.addCase(fetchProductAsync.rejected, (state, action) => {
-    //         console.log(action);
-    //         state.status = 'idle';
-    //     });
-    //     builder.addCase(fetchFilters.pending, (state) => {
-    //         state.status = 'pendingFetchFilters';
-    //     });
-    //     builder.addCase(fetchFilters.fulfilled, (state, action) => {
-    //         state.brands = action.payload.brands;
-    //         state.types = action.payload.types;
-    //         state.status = 'idle';
-    //         state.filtersLoaded = true;
-    //     });
-    //     builder.addCase(fetchFilters.rejected, (state) => {
-    //         state.status = 'idle';
-    //     });
-    // })
+    extraReducers: (builder => {
+        builder.addCase(fetchCategoriesAsync.pending, (state, action) => {
+            state.status = 'pendingFetchCategories'
+        });
+        builder.addCase(fetchCategoriesAsync.fulfilled, (state, action) => {
+            categoriesAdapter.setAll(state, action.payload);
+            state.status = 'idle';
+            state.categoriesLoaded = true;
+        });
+        builder.addCase(fetchCategoriesAsync.rejected, (state, action) => {
+            console.log(action.payload);
+            state.status = 'idle';
+        });
+        builder.addCase(fetchCategoryAsync.pending, (state) => {
+            state.status = 'pendingFetchCategory';
+        });
+        builder.addCase(fetchCategoryAsync.fulfilled, (state, action) => {
+            categoriesAdapter.upsertOne(state, action.payload);
+            state.status = 'idle';
+        });
+        builder.addCase(fetchCategoryAsync.rejected, (state, action) => {
+            console.log(action);
+            state.status = 'idle';
+        });
+        builder.addCase(fetchFilters.pending, (state) => {
+            state.status = 'pendingFetchFilters';
+        });
+        builder.addCase(fetchFilters.fulfilled, (state, action) => {
+            // state.brands = action.payload.brands;
+            // state.types = action.payload.types;
+            state.status = 'idle';
+            state.filtersLoaded = true;
+        });
+        builder.addCase(fetchFilters.rejected, (state) => {
+            state.status = 'idle';
+        });
+    }
+    )
 })
 
 export const categorySelectors = categoriesAdapter.getSelectors((state: RootState) => state.categories);

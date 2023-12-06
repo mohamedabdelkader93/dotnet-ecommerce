@@ -4,46 +4,48 @@ import { Box, Typography, Button, TableContainer, Paper, Table, TableHead, Table
 import { useState } from "react";
 import agent from "../../app/api/agent";
 import AppPagination from "../../app/components/AppPagination";
-import useProducts from "../../app/hooks/useProducts";
-import { Product } from "../../app/models/product";
+// import useProducts from "../../app/hooks/useProducts";
+import { Category } from "../../app/models/category";
 import { useAppDispatch } from "../../app/store/configureStore";
 import { currencyFormat } from "../../app/util/util";
-import { removeProduct, setPageNumber } from "../catalog/catalogSlice";
+import { removeCategory, setPageNumber } from "../categories/categoriesSlice";
 import ProductForm from "./ProductForm";
+import useCategories from "../../app/hooks/useCategories";
+import CategoryForm from "./CategoryForm";
 
-export default function Categories() {
-    const {products, metaData} = useProducts();
+export default function Inventory() {
+    const {categories, metaData} = useCategories();
     const dispatch = useAppDispatch();
     const [editMode, setEditMode] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
+    const [selectedCategory, setSelectedCategory] = useState<Category | undefined>(undefined);
     const [loading, setLoading] = useState(false);
     const [target, setTarget] = useState(0);
 
-    function handleSelectProduct(product: Product) {
-        setSelectedProduct(product);
+    function handleSelectCategory(category: Category) {
+        setSelectedCategory(category);
         setEditMode(true);
     }
 
-    function handleDeleteProduct(id: number) {
+    function handleDeleteCategory(id: number) {
         setLoading(true);
         setTarget(id)
-        agent.Admin.deleteProduct(id)
-            .then(() => dispatch(removeProduct(id)))
+        agent.Admin.deleteCategory(id)
+            .then(() => dispatch(removeCategory(id)))
             .catch(error => console.log(error))
             .finally(() => setLoading(false))
     }
 
     function cancelEdit() {
-        if (selectedProduct) setSelectedProduct(undefined);
+        if (selectedCategory) setSelectedCategory(undefined);
         setEditMode(false);
     }
 
-    if (editMode) return <ProductForm product={selectedProduct} cancelEdit={cancelEdit} />
+    if (editMode) return <CategoryForm category={selectedCategory} cancelEdit={cancelEdit} />
 
     return (
         <>
             <Box display='flex' justifyContent='space-between'>
-                <Typography sx={{ p: 2 }} variant='h4'>Inventory</Typography>
+                <Typography sx={{ p: 2 }} variant='h4'>Categories</Typography>
                 <Button onClick={() => setEditMode(true)} sx={{ m: 2 }} size='large' variant='contained'>Create</Button>
             </Box>
             <TableContainer component={Paper}>
@@ -51,38 +53,30 @@ export default function Categories() {
                     <TableHead>
                         <TableRow>
                             <TableCell>#</TableCell>
-                            <TableCell align="left">Product</TableCell>
-                            <TableCell align="right">Price</TableCell>
-                            <TableCell align="center">Type</TableCell>
-                            <TableCell align="center">Brand</TableCell>
-                            <TableCell align="center">Quantity</TableCell>
+                            <TableCell align="left">Category</TableCell>
                             <TableCell align="right"></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.map((product) => (
+                        {categories.map((category) => (
                             <TableRow
-                                key={product.id}
+                                key={category.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell component="th" scope="row">
-                                    {product.id}
+                                    {category.id}
                                 </TableCell>
                                 <TableCell align="left">
                                     <Box display='flex' alignItems='center'>
-                                        <img src={product.pictureUrl} alt={product.name} style={{ height: 50, marginRight: 20 }} />
-                                        <span>{product.name}</span>
+                                        <img src={category.pictureUrl} alt={category.name} style={{ height: 50, marginRight: 20 }} />
+                                        <span>{category.name}</span>
                                     </Box>
                                 </TableCell>
-                                <TableCell align="right">{currencyFormat(product.price)}</TableCell>
-                                <TableCell align="center">{product.type}</TableCell>
-                                <TableCell align="center">{product.brand}</TableCell>
-                                <TableCell align="center">{product.quantityInStock}</TableCell>
                                 <TableCell align="right">
-                                    <Button onClick={() => handleSelectProduct(product)} startIcon={<Edit />} />
+                                    <Button onClick={() => handleSelectCategory(category)} startIcon={<Edit />} />
                                     <LoadingButton 
-                                        loading={loading && target === product.id} 
-                                        onClick={() => handleDeleteProduct(product.id)} 
+                                        loading={loading && target === category.id} 
+                                        onClick={() => handleDeleteCategory(category.id)} 
                                         startIcon={<Delete />} color='error' />
                                 </TableCell>
                             </TableRow>

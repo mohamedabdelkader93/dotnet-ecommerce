@@ -245,7 +245,8 @@ namespace API.Data
                 
                 new Category
                 {
-                    Name = "Category 1"
+                    Name = "Category 1",
+                    PictureUrl = "/images/products/boot-ang1.png",
                 },
             };
             

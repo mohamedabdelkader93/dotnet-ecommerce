@@ -123,7 +123,11 @@ const Payments = {
 const Admin = {
     createProduct: (product: any) => requests.postForm('products', createFormData(product)),
     updateProduct: (product: any) => requests.putForm('products', createFormData(product)),
-    deleteProduct: (id: number) => requests.delete(`products/${id}`)
+    deleteProduct: (id: number) => requests.delete(`products/${id}`),
+    // categories admin actions
+    createCategory: (category: any) => requests.postForm('categories', createFormData(category)),
+    updateCategory: (category: any) => requests.putForm('categories', createFormData(category)),
+    deleteCategory: (id: number) => requests.delete(`categories/${id}`)
 }
 
 const agent = {

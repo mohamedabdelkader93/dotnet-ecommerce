@@ -3,6 +3,7 @@ import AboutPage from "../../features/about/AboutPage";
 import Login from "../../features/account/Login";
 import Register from "../../features/account/Register";
 import Inventory from "../../features/admin/Inventory";
+import Categories from "../../features/admin/Categories";
 import BasketPage from "../../features/basket/BasketPage";
 import Catalog from "../../features/catalog/Catalog";
 import ProductDetails from "../../features/catalog/ProductDetails";
@@ -27,6 +28,9 @@ export const router = createBrowserRouter([
             // admin routes
             {element: <RequireAuth roles={['Admin']} />, children: [
                 {path: 'inventory', element: <Inventory />},
+            ]},
+            {element: <RequireAuth roles={['Admin']} />, children: [
+                {path: 'categories', element: <Categories />},
             ]},
             {path: 'catalog', element: <Catalog />},
             {path: 'catalog/:id', element: <ProductDetails />},

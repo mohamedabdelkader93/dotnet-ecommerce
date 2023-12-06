@@ -1,3 +1,4 @@
+using Algolia.Search.Clients;
 using API.Data;
 using API.DTOs;
 using API.Entities;
@@ -79,6 +80,29 @@ namespace API.Controllers
             _context.Products.Add(product);
 
             var result = await _context.SaveChangesAsync() > 0;
+            // var algoliaIntegration = new AlgoliaIntegration("SZJYGVO358", "5bb4fbbee547e5b7893567cda85d4a3d", _context.Products);
+
+            // algolia post
+            
+            var client = new SearchClient("SZJYGVO358", "5bb4fbbee547e5b7893567cda85d4a3d");
+            var index = client.InitIndex("products");
+            List<AlgoliaProduct> algoliaproduct = new List<AlgoliaProduct>{
+                new AlgoliaProduct {
+                        ObjectID = product.Id.ToString(), 
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Description,
+                        Price = product.Price,
+                        PictureUrl = product.PictureUrl,
+                        Type = product.Type,
+                        Brand = product.Brand,
+                        QuantityInStock= product.QuantityInStock,
+                        PublicId = product.PublicId
+                    }
+            };
+            index.SaveObjects(algoliaproduct);
+
+
 
             if (result) return CreatedAtRoute("GetProduct", new { Id = product.Id }, product);
 
@@ -111,6 +135,25 @@ namespace API.Controllers
 
             var result = await _context.SaveChangesAsync() > 0;
 
+            var client = new SearchClient("SZJYGVO358", "5bb4fbbee547e5b7893567cda85d4a3d");
+            var index = client.InitIndex("products");
+
+            List<AlgoliaProduct> algoliaproduct = new List<AlgoliaProduct>{
+                new AlgoliaProduct {
+                        ObjectID = product.Id.ToString(), 
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Description,
+                        Price = product.Price,
+                        PictureUrl = product.PictureUrl,
+                        Type = product.Type,
+                        Brand = product.Brand,
+                        QuantityInStock= product.QuantityInStock,
+                        PublicId = product.PublicId
+                    }
+            };
+            index.PartialUpdateObjects(algoliaproduct);
+
             if (result) return Ok(product);
 
             return BadRequest(new ProblemDetails { Title = "Problem updating product" });
@@ -130,6 +173,13 @@ namespace API.Controllers
             _context.Products.Remove(product);
 
             var result = await _context.SaveChangesAsync() > 0;
+
+            var client = new SearchClient("SZJYGVO358", "5bb4fbbee547e5b7893567cda85d4a3d");
+            var index = client.InitIndex("products");
+
+            List<string> ids = new List<string> { product.Id.ToString() };
+
+            index.DeleteObjects(ids, null);
 
             if (result) return Ok();
 
